@@ -30,7 +30,7 @@
   <!-- 左侧文案 -->
   <g font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
     <rect x="72" y="76" width="66" height="26" rx="13" fill="#3ddc84" fill-opacity="0.14"/>
-    <text x="105" y="94" text-anchor="middle" font-size="13" font-weight="600" fill="#3ddc84" letter-spacing="0.5">v1.3.0</text>
+    <text x="105" y="94" text-anchor="middle" font-size="13" font-weight="600" fill="#3ddc84" letter-spacing="0.5">v1.4.0</text>
 
     <text x="72" y="160" font-size="58" font-weight="700" fill="#f2f5fa" letter-spacing="1">课堂派自动签到</text>
     <text x="74" y="196" font-size="19" fill="#9aa3b8" letter-spacing="2.4">KETANGPAI · AUTO CHECK-IN</text>
