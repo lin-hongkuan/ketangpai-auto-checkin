@@ -21,7 +21,9 @@ export const LOG_DIR = path.join(DATA_DIR, 'logs');
 export const LOG_FILE = path.join(LOG_DIR, 'service.log');
 
 export const POLL_INTERVAL = Math.max(3, Number(ENV.POLL_INTERVAL || 10));
-export const COURSE_REFRESH_SEC = Math.max(15, Number(ENV.COURSE_REFRESH_SEC || 60));
+// 课程列表刷新间隔。这个接口只返回课程 id/名称，一次请求，成本极低 ——
+// 没必要为了省它而让新课程等一分钟才纳入巡检（老师可能刚发完考勤）。
+export const COURSE_REFRESH_SEC = Math.max(10, Number(ENV.COURSE_REFRESH_SEC || 15));
 export const DASHBOARD_TOKEN = ENV.DASHBOARD_TOKEN || '';
 export const DAILY_REPORT_HOUR = Number(ENV.DAILY_REPORT_HOUR ?? 21);
 // 并发扫描的课程数：课程多时调高能缩短单轮耗时，但别太高（对服务端不友好，也容易触发风控）

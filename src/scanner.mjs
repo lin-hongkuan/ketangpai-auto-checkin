@@ -10,9 +10,10 @@
  */
 import { COURSE_REFRESH_SEC, RECENT_TTL } from './config.mjs';
 import { S } from './store.mjs';
-import { fetchCourses, fetchPendingList, fetchRecentAttence } from './api.mjs';
+import { fetchCourses, fetchPendingList, fetchRecentAttence, TokenExpiredError } from './api.mjs';
 import { pickCheckouts } from './attence.mjs';
 import { pushEvent, eventOnce } from './events.mjs';
+import { logLine } from './log-bridge.mjs';
 
 // 最近记录缓存：courseId -> { at, rows }
 const recentCache = new Map();
@@ -40,14 +41,27 @@ export function invalidateRecent(courseId) {
 
 /**
  * 课程列表（带缓存 + 增减侦测）
- * 新加入的课程最迟 COURSE_REFRESH_SEC 后纳入巡检。
+ *
+ * 新加入的课程最迟 COURSE_REFRESH_SEC（默认 15 秒）后纳入巡检。
+ * 刷新失败不阻塞巡检 —— 沿用上次结果，10 秒后重试，
+ * 否则一次网络抖动会让整轮考勤扫描停摆。
  */
 export async function getCourses(force = false) {
   const cfg = S.config;
-  const ttl = Math.max(15, Number(cfg.courseRefreshSec || COURSE_REFRESH_SEC)) * 1000;
+  const ttl = Math.max(10, Number(cfg.courseRefreshSec || COURSE_REFRESH_SEC)) * 1000;
   if (!force && S.courses.length && Date.now() - S.coursesAt < ttl) return S.courses;
 
-  const all = await fetchCourses();
+  let all;
+  try {
+    all = await fetchCourses();
+  } catch (e) {
+    if (e instanceof TokenExpiredError) throw e;
+    if (!S.courses.length) throw e; // 从来没成功过，这轮只能失败
+    logLine('WARN', `课程列表刷新失败，沿用上次的 ${S.courses.length} 门课：${e.message}`);
+    S.coursesAt = Date.now() - ttl + 10000; // 10 秒后重试，别死等一个完整周期
+    return S.courses;
+  }
+
   const allowList = Array.isArray(cfg.courseIds) && cfg.courseIds.length ? new Set(cfg.courseIds) : null;
   const exclude = new Set(cfg.excludeCourseIds || []);
   const kept = all.filter((c) => (!allowList || allowList.has(c.id)) && !exclude.has(c.id));
