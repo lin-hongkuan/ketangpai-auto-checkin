@@ -1,0 +1,40 @@
+name: Bug 报告
+description: 签到失败、判定错误、部署问题
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提交前请先看 [FAQ](https://github.com/lin-hongkuan/ketangpai-auto-checkin#-faq)，
+        并运行 `node src/index.mjs --self-test` 确认自检是否通过。
+        **不要贴出完整 token**，保留前后 4 位即可。
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 现象 + 期望结果
+      placeholder: 看板显示签到成功，但老师端显示未签到
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: /status 脱敏片段
+      description: 把 token 删掉再贴
+      render: json
+  - type: textarea
+    id: selftest
+    attributes:
+      label: --self-test 输出
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: /healthz 里的 version 字段
+      placeholder: "1.4.0"
+  - type: dropdown
+    id: deploy
+    attributes:
+      label: 部署方式
+      options: [Docker, 裸 Node, 其他]

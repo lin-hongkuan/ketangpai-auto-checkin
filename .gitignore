@@ -1,0 +1,17 @@
+# 运行时数据（含 token，绝对不要提交）
+data/
+.env
+
+# 依赖与构建产物
+node_modules/
+*.log
+__pycache__/
+*.pyc
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+
+# 自检临时目录
+.tmp/

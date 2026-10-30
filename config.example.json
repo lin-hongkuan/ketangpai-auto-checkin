@@ -1,0 +1,11 @@
+{
+  "token": "",
+  "courseIds": [],
+  "excludeCourseIds": [],
+  "digitCode": "",
+  "latitude": "",
+  "longitude": "",
+  "coordsAreWgs84": true,
+  "courseRefreshSec": 60,
+  "dailyReportHour": 21
+}

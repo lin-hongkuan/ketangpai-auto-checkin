@@ -1,0 +1,17 @@
+{
+  "name": "ketangpai-auto-checkin",
+  "version": "1.4.0",
+  "description": "课堂派自动签到：全课程巡检 / 签入签出 / 状态看板 / 零依赖",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": { "ktp-checkin": "src/index.mjs" },
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "once": "node src/index.mjs --once",
+    "status": "node src/index.mjs --status",
+    "test": "node src/index.mjs --self-test"
+  },
+  "keywords": ["ketangpai", "attendance", "checkin", "automation", "docker"],
+  "license": "MIT"
+}

@@ -1,0 +1,26 @@
+services:
+  ktp-checkin:
+    build: .
+    image: ketangpai-auto-checkin:latest
+    container_name: ktp-checkin
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      DATA_DIR: /data
+      PORT: "8080"
+      POLL_INTERVAL: "${POLL_INTERVAL:-10}"
+      COURSE_REFRESH_SEC: "${COURSE_REFRESH_SEC:-60}"
+      KTP_TOKEN: "${KTP_TOKEN:-}"
+      DASHBOARD_TOKEN: "${DASHBOARD_TOKEN:-}"
+      DAILY_REPORT_HOUR: "${DAILY_REPORT_HOUR:-21}"
+    volumes:
+      # 配置、去重状态、日志都在这里，别删
+      - ./data:/data
+    ports:
+      # 宿主机端口可改；默认只监听回环，外部不可直接访问
+      - "${BIND_ADDR:-127.0.0.1}:${BIND_PORT:-18080}:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

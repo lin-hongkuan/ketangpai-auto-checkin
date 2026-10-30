@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: 语法检查
+        run: for f in src/*.mjs integrations/*.mjs; do node --check "$f"; done
+      - name: 自检（不联网）
+        run: DATA_DIR=./.tmp node src/index.mjs --self-test
+      - name: 版本号
+        run: DATA_DIR=./.tmp node src/index.mjs --version

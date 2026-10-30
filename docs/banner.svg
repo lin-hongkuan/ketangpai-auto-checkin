@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" fill="none" role="img" aria-label="课堂派自动签到">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b0e14"/>
+      <stop offset="0.55" stop-color="#121722"/>
+      <stop offset="1" stop-color="#1a2133"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4da3ff"/>
+      <stop offset="0.45" stop-color="#3ddc84"/>
+      <stop offset="1" stop-color="#ffb020"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4da3ff"/>
+      <stop offset="1" stop-color="#3ddc84"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#4da3ff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#4da3ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#ffffff" stroke-opacity="0.028" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="320" fill="url(#bg)"/>
+  <rect width="1200" height="320" fill="url(#grid)"/>
+  <ellipse cx="980" cy="160" rx="300" ry="220" fill="url(#glow)"/>
+
+  <!-- 左侧文案 -->
+  <g font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <rect x="72" y="76" width="66" height="26" rx="13" fill="#3ddc84" fill-opacity="0.14"/>
+    <text x="105" y="94" text-anchor="middle" font-size="13" font-weight="600" fill="#3ddc84" letter-spacing="0.5">v1.3.0</text>
+
+    <text x="72" y="160" font-size="58" font-weight="700" fill="#f2f5fa" letter-spacing="1">课堂派自动签到</text>
+    <text x="74" y="196" font-size="19" fill="#9aa3b8" letter-spacing="2.4">KETANGPAI · AUTO CHECK-IN</text>
+
+    <g font-size="14.5" fill="#aab3c5">
+      <circle cx="78" cy="243" r="3.5" fill="#4da3ff"/>
+      <text x="94" y="248">全课程巡检</text>
+      <circle cx="214" cy="243" r="3.5" fill="#3ddc84"/>
+      <text x="230" y="248">签入 + 签出</text>
+      <circle cx="366" cy="243" r="3.5" fill="#ffb020"/>
+      <text x="382" y="248">零依赖单文件</text>
+      <circle cx="520" cy="243" r="3.5" fill="#c084fc"/>
+      <text x="536" y="248">Agent 一键部署</text>
+    </g>
+  </g>
+
+  <!-- 右侧图形：巡检环 -->
+  <g transform="translate(980 160)">
+    <circle r="118" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1.5"/>
+    <circle r="86" stroke="#ffffff" stroke-opacity="0.09" stroke-width="1.5"/>
+    <circle r="118" stroke="url(#ring)" stroke-width="3" stroke-linecap="round"
+            stroke-dasharray="556 186" transform="rotate(-96)" opacity="0.9"/>
+    <circle r="86" stroke="#4da3ff" stroke-opacity="0.45" stroke-width="2.5" stroke-linecap="round"
+            stroke-dasharray="270 270" transform="rotate(38)"/>
+
+    <!-- 中心勾选 -->
+    <circle r="46" fill="#0e1420" stroke="#3ddc84" stroke-opacity="0.5" stroke-width="1.5"/>
+    <path d="M-17 1 L-5 14 L18 -11" stroke="#3ddc84" stroke-width="6.5"
+          stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- 环绕节点 -->
+    <circle cx="0" cy="-118" r="7" fill="#4da3ff"/>
+    <circle cx="102" cy="59" r="5.5" fill="#ffb020"/>
+    <circle cx="-102" cy="59" r="5.5" fill="#c084fc"/>
+  </g>
+
+  <rect x="0" y="316" width="1200" height="4" fill="url(#bar)"/>
+</svg>
