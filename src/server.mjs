@@ -77,20 +77,32 @@ export function statusPayload() {
         status: d.label, phase: d.phase,
       };
     }),
-    recent: (S.recent || []).map(({ course, item }) => {
-      const d = describeAttence(item);
-      return {
-        courseId: course.id, course: course.name, id: item.id,
-        title: item.title || item.attenceTitle || '',
-        type: String(item.type), typeName: ATTEND_TYPE[String(item.type)] || String(item.type),
-        state: String(item.state), status: d.label, phase: d.phase, cls: d.cls,
-        createtime: Number(item.createtime || 0),
-        checkouttime: Number(item.checkouttime || 0),
-        overtime: Number(item.overtime || 0),
-        checkinAt: Number(item.resultCheckinTime || 0),
-        checkoutAt: Number(item.resultCheckoutTime || 0),
-      };
-    }),
+    // 最近考勤：跨课程按时间倒序，但每门课最多 3 条 —— 否则一门课连发 5 次考勤
+    // 会把整个列表刷满，看不到别的课。
+    recent: (() => {
+      const out = [];
+      const perCourse = new Map();
+      for (const { course, item } of S.recent || []) {
+        const n = perCourse.get(course.id) || 0;
+        if (n >= 3) continue;
+        perCourse.set(course.id, n + 1);
+        const d = describeAttence(item);
+        out.push({
+          courseId: course.id, course: course.name, id: item.id,
+          title: item.title || item.attenceTitle || '',
+          type: String(item.type), typeName: ATTEND_TYPE[String(item.type)] || String(item.type),
+          state: String(item.state), status: d.label, phase: d.phase, cls: d.cls,
+          createtime: Number(item.createtime || 0),
+          signTime: Number(item.signTime || 0),
+          checkouttime: Number(item.checkouttime || 0),
+          overtime: Number(item.overtime || 0),
+          checkinAt: Number(item.resultCheckinTime || 0),
+          checkoutAt: Number(item.resultCheckoutTime || 0),
+        });
+        if (out.length >= 20) break;
+      }
+      return out;
+    })(),
     today: {
       date: st.date, rounds: st.rounds, detected: st.detected,
       signed: st.signed, signedOut: st.signedOut || 0,

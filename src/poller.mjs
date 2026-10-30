@@ -3,7 +3,7 @@
  *
  * 每轮：拉课程 → 并发扫描 → 处理待签到 → 处理待签出 → 每日汇总
  */
-import { DAILY_REPORT_HOUR, POOL_SIZE } from './config.mjs';
+import { DAILY_REPORT_HOUR, POOL_SIZE, POLL_INTERVAL } from './config.mjs';
 import { S, P, bumpStats, saveState, pruneDone } from './store.mjs';
 import { getCourses, scanCourse, invalidateRecent } from './scanner.mjs';
 import { submitCheckin, submitCheckout } from './signer.mjs';
@@ -56,6 +56,10 @@ const isCheckoutDone = (course, rec) => !!P.done[checkoutKey(course, rec)];
 
 // 连续失败计数（内存即可，重启后从头算）
 const failCount = new Map();
+// 记录被服务端拒绝过的数字考勤码，避免用同一个错码反复提交
+const badCode = new Map();
+// 签出窗口的时钟容差：本地时钟可能比服务端慢几秒，提前几秒开始尝试
+const CLOCK_SKEW_SEC = 3;
 
 function markDone(course, item) {
   P.done[doneKey(course, item)] = Date.now();
@@ -90,13 +94,26 @@ async function handleOne(course, item) {
       eventOnce('digit:' + key, 30, 'warn', 'need_code', `数字考勤待补签：${course.name}｜${title}（需要 4 位签到码，可在看板填写或通过 /code 接口提交）`);
       return 5;
     }
+    // 同一个错码不要每轮都重试：既浪费请求，也可能触发风控
+    if (badCode.get(key) === code) {
+      eventOnce('digitbad:' + key, 30, 'warn', 'need_code',
+        `数字考勤码无效：${course.name}｜${title}（当前配置的码被拒，请更新 digitCode）`);
+      return 5;
+    }
     const r = await submitCheckin(course, item, code);
     if (r.ok) {
+      badCode.delete(key);
       markDone(course, item);
       invalidateRecent(course.id);
       bumpStats().signed++;
       pushEvent('success', 'signed', `签到成功：${course.name}｜${title}（数字考勤${r.verify ? '，' + r.verify : ''}）`);
       return 0;
+    }
+    if (r.fatal) {
+      badCode.set(key, code);
+      eventOnce('digitbad:' + key, 30, 'warn', 'need_code',
+        `数字考勤码被拒：${course.name}｜${title}（${r.error}）—— 换一个码再试，同一个码不会重复提交`);
+      return 5;
     }
     bumpStats().failed++;
     signFailure(course, item, '数字考勤', r);
@@ -174,7 +191,7 @@ async function handleCheckout(course, rec) {
   const checkoutAt = Number(rec.checkouttime || 0);
   const overtime = Number(rec.overtime || 0);
 
-  if (now < checkoutAt) {
+  if (now < checkoutAt - CLOCK_SKEW_SEC) {
     eventOnce('co-wait:' + key, 60, 'info', 'checkout_waiting',
       `签入签出考勤已签入，等待签出：${course.name}｜${title}（${fmtTs(checkoutAt)} 开放签出${overtime ? '，' + fmtTs(overtime) + ' 截止' : ''}）`);
     return 4;
@@ -269,6 +286,12 @@ export async function pollRound() {
   } finally {
     S.lastPollMs = Date.now() - t0;
     polling = false;
+    // 单轮耗时接近轮询间隔时给出提示：课程多或网络慢，建议调大 POLL_INTERVAL
+    // 前两轮是冷启动（课程列表 + 全部课程缓存都是空的），不告警
+    if (S.pollRounds > 2 && S.lastPollMs > POLL_INTERVAL * 1000 * 0.9) {
+      eventOnce('slowpoll', 30, 'warn', 'poll_error',
+        '单轮巡检耗时 ' + S.lastPollMs + 'ms，接近轮询间隔 ' + POLL_INTERVAL + 's，建议调大 POLL_INTERVAL 或调小 POOL_SIZE');
+    }
   }
 }
 
